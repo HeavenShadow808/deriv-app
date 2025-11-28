@@ -1,5 +1,5 @@
 import { website_name } from '../config/app-config';
-import { domain_app_ids, getAppId } from '../config/config';
+import { domain_app_ids, getAppId, DEFAULT_AFFILIATE_TOKEN, DEFAULT_UTM_CAMPAIGN } from '../config/config';
 import { CookieStorage, isStorageSupported, LocalStore } from '../storage/storage';
 import { getHubSignupUrl, urlForCurrentDomain } from '../url';
 import { deriv_urls } from '../url/constants';
@@ -41,9 +41,22 @@ export const loginUrl = ({ language }: TLoginUrl) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const date_first_contact_cookie = new (CookieStorage as any)('date_first_contact');
     const date_first_contact = date_first_contact_cookie.get('date_first_contact');
+    // Get affiliate_token and utm_campaign from URL parameters
+    // Support both sidc (Revenue Share) and sidi (Master Partner) from affiliate links
+    // Always use default values from config if not provided in URL (affiliate link will always be used)
+    const url_params = new URLSearchParams(window.location.search);
+    const url_affiliate_token = url_params.get('affiliate_token') || url_params.get('sidc') || url_params.get('sidi');
+    const url_utm_campaign = url_params.get('utm_campaign');
+    // Use URL parameter if provided, otherwise always use default from config
+    const affiliate_token =
+        url_affiliate_token ||
+        (DEFAULT_AFFILIATE_TOKEN && DEFAULT_AFFILIATE_TOKEN.trim().length > 0 ? DEFAULT_AFFILIATE_TOKEN : null);
+    const utm_campaign =
+        url_utm_campaign ||
+        (DEFAULT_UTM_CAMPAIGN && DEFAULT_UTM_CAMPAIGN.trim().length > 0 ? DEFAULT_UTM_CAMPAIGN : null);
     const marketing_queries = `${signup_device ? `&signup_device=${signup_device}` : ''}${
         date_first_contact ? `&date_first_contact=${date_first_contact}` : ''
-    }`;
+    }${affiliate_token ? `&affiliate_token=${affiliate_token}` : ''}${utm_campaign ? `&utm_campaign=${utm_campaign}` : ''}`;
 
     const getOAuthUrl = () => {
         return `https://oauth.${

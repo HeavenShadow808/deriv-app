@@ -13,6 +13,14 @@ import { isStaging } from '../url/helpers';
 export const livechat_license_id = 12049137;
 export const livechat_client_id = '66aa088aad5a414484c1fd1fa8a5ace7';
 
+// Default Affiliate Configuration
+// These values will ALWAYS be used for all login/signup unless overridden by URL parameters
+// Set to empty string '' to disable default affiliate tracking
+// Revenue Share Plan (for clients): sidc=4504E060-B7D0-4D2D-8049-70C39D052AA0
+// Master Partner Plan (for partners): sidi=0433D42E-FAB0-413A-9F58-AB42D5A38A18
+export const DEFAULT_AFFILIATE_TOKEN = '4504E060-B7D0-4D2D-8049-70C39D052AA0'; // Revenue Share - always used unless URL parameter provided
+export const DEFAULT_UTM_CAMPAIGN = 'dynamicworks'; // always used unless URL parameter provided
+
 export const domain_app_ids = {
     // these domains as supported "production domains"
     'deriv.app': 16929, // TODO: [app-link-refactor] - Remove backwards compatibility for `deriv.app`
@@ -50,7 +58,7 @@ export const isLocal = () => /localhost(:\d+)?$/i.test(window.location.hostname)
  */
 export const getAppId = () => {
     let app_id = null;
-    const user_app_id = '113298'; // you can insert Application ID of your registered application here
+    const user_app_id = '16929'; // you can insert Application ID of your registered application here
     const config_app_id = window.localStorage.getItem('config.app_id');
     const current_domain = getCurrentProductionDomain() || '';
     window.localStorage.removeItem('config.platform'); // Remove config stored in localstorage if there's any.

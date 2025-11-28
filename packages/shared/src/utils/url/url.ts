@@ -1,6 +1,6 @@
 import { deriv_urls } from './constants';
 import { getPlatformFromUrl } from './helpers';
-import { getCurrentProductionDomain } from '../config/config';
+import { getCurrentProductionDomain, DEFAULT_AFFILIATE_TOKEN, DEFAULT_UTM_CAMPAIGN } from '../config/config';
 import { routes } from '../routes';
 
 type TOption = {
@@ -165,7 +165,23 @@ export const getHubSignupUrl = (redirect_url?: string) => {
     const lang = `?lang=${default_language?.toLowerCase() || 'en'}`;
     const redirect_param = redirect_url ? `&redirect_url=${encodeURIComponent(redirect_url)}` : '';
 
-    return `${current_domain}/signup${lang}${redirect_param}`;
+    // Get affiliate token and utm_campaign from URL parameters for signup
+    // Support both sidc (Revenue Share) and sidi (Master Partner) from affiliate links
+    // Always use default values from config if not provided in URL (affiliate link will always be used)
+    const url_params = new URLSearchParams(window.location.search);
+    const url_affiliate_token = url_params.get('affiliate_token') || url_params.get('sidc') || url_params.get('sidi');
+    const url_utm_campaign = url_params.get('utm_campaign');
+    // Use URL parameter if provided, otherwise always use default from config
+    const affiliate_token =
+        url_affiliate_token ||
+        (DEFAULT_AFFILIATE_TOKEN && DEFAULT_AFFILIATE_TOKEN.trim().length > 0 ? DEFAULT_AFFILIATE_TOKEN : null);
+    const utm_campaign =
+        url_utm_campaign ||
+        (DEFAULT_UTM_CAMPAIGN && DEFAULT_UTM_CAMPAIGN.trim().length > 0 ? DEFAULT_UTM_CAMPAIGN : null);
+    const affiliate_params =
+        affiliate_token && utm_campaign ? `&t=${affiliate_token}&utm_campaign=${utm_campaign}` : '';
+
+    return `${current_domain}/signup${lang}${redirect_param}${affiliate_params}`;
 };
 
 export const getPath = (route_path: string, parameters = {}) =>
