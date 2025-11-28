@@ -59,9 +59,11 @@ export const loginUrl = ({ language }: TLoginUrl) => {
     }${affiliate_token ? `&affiliate_token=${affiliate_token}` : ''}${utm_campaign ? `&utm_campaign=${utm_campaign}` : ''}`;
 
     const getOAuthUrl = () => {
+        // Add redirect_uri to ensure redirect back to current domain (custom domain support)
+        const redirect_uri = `${window.location.origin}/en/redirect`;
         return `https://oauth.${
             deriv_urls.DERIV_HOST_NAME
-        }/oauth2/authorize?app_id=${change_login_app_id || getAppId()}&l=${language}${marketing_queries}&brand=${website_name.toLowerCase()}`;
+        }/oauth2/authorize?app_id=${change_login_app_id || getAppId()}&l=${language}${marketing_queries}&brand=${website_name.toLowerCase()}&redirect_uri=${encodeURIComponent(redirect_uri)}`;
     };
 
     if (server_url && /qa/.test(server_url)) {

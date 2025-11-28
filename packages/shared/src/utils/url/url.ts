@@ -160,10 +160,13 @@ export const getStaticUrl = (path = '', is_document = false, is_eu_url = false) 
 };
 
 export const getHubSignupUrl = (redirect_url?: string) => {
+    // Always use Deriv hub for signup (required by Deriv)
     const current_domain = process.env.NODE_ENV === 'production' ? deriv_urls.HUB_PRODUCTION : deriv_urls.HUB_STAGING;
 
     const lang = `?lang=${default_language?.toLowerCase() || 'en'}`;
-    const redirect_param = redirect_url ? `&redirect_url=${encodeURIComponent(redirect_url)}` : '';
+    // Ensure redirect_url points back to current domain (custom domain support)
+    const final_redirect_url = redirect_url || window.location.origin;
+    const redirect_param = `&redirect_url=${encodeURIComponent(final_redirect_url)}`;
 
     // Get affiliate token and utm_campaign from URL parameters for signup
     // Support both sidc (Revenue Share) and sidi (Master Partner) from affiliate links
