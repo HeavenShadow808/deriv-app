@@ -161,7 +161,18 @@ export const getStaticUrl = (path = '', is_document = false, is_eu_url = false) 
 
 export const getHubSignupUrl = (redirect_url?: string) => {
     // Always use Deriv hub for signup (required by Deriv)
-    const current_domain = process.env.NODE_ENV === 'production' ? deriv_urls.HUB_PRODUCTION : deriv_urls.HUB_STAGING;
+    // For custom domains (not deriv.com/deriv.me/deriv.be), always use production hub
+    // For Deriv domains, use production if not staging domain, otherwise use staging
+    const is_custom_domain =
+        !getCurrentProductionDomain() && !/^staging-app\.deriv\.(com|me|be)$/i.test(window.location.hostname);
+    const is_staging_domain = /^staging-app\.deriv\.(com|me|be)$/i.test(window.location.hostname);
+    // Custom domains should always use production hub for signup (app_id 16929 is production)
+    // Only use staging if explicitly on staging domain
+    // For custom domains, always use production hub regardless of NODE_ENV
+    const current_domain =
+        is_custom_domain || (!is_staging_domain && process.env.NODE_ENV === 'production')
+            ? deriv_urls.HUB_PRODUCTION
+            : deriv_urls.HUB_STAGING;
 
     const lang = `?lang=${default_language?.toLowerCase() || 'en'}`;
     // Ensure redirect_url points back to current domain (custom domain support)
