@@ -1,3 +1,7 @@
 {
+    "buildCommand": "npm run build:all",
+    "installCommand": "npm install",
+    "framework": null,
+    "nodeVersion": "20.x",
     "routes": [{ "handle": "filesystem" }, { "src": "/(.*)", "dest": "/index.html" }]
 }
