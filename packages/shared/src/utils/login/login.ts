@@ -63,10 +63,10 @@ export const loginUrl = ({ language }: TLoginUrl) => {
         // According to Deriv API documentation: https://developers.deriv.com/docs/authentication
         // The redirect URL format should be: https://[YOUR_WEBSITE_URL]/redirect/?acct1=...&token1=...&cur1=...
         // This must match the "OAuth redirect URL" configured in the Deriv API Dashboard
+        // IMPORTANT: Always use oauth.deriv.com (original Deriv OAuth server) regardless of custom domain
+        // Custom domain OAuth (oauth.deriv.now) is not configured and will cause login failures
         const redirect_uri = `${window.location.origin}/redirect`;
-        return `https://oauth.${
-            deriv_urls.DERIV_HOST_NAME
-        }/oauth2/authorize?app_id=${change_login_app_id || getAppId()}&l=${language}${marketing_queries}&brand=${website_name.toLowerCase()}&redirect_uri=${encodeURIComponent(redirect_uri)}`;
+        return `https://oauth.deriv.com/oauth2/authorize?app_id=${change_login_app_id || getAppId()}&l=${language}${marketing_queries}&brand=${website_name.toLowerCase()}&redirect_uri=${encodeURIComponent(redirect_uri)}`;
     };
 
     if (server_url && /qa/.test(server_url)) {
