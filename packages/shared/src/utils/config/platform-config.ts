@@ -14,10 +14,20 @@ type TPlatform = {
 };
 
 type TPlatforms = Record<'p2p' | 'p2p_v2' | 'derivgo' | 'tradershub_os', TPlatform>;
+
+// TEMPORARY FALLBACK: Until external apps are deployed to custom subdomains,
+// we'll use deriv.com as fallback. Set to true when ready to use custom domain.
+const USE_CUSTOM_DOMAIN_FOR_EXTERNAL_APPS = false; // TODO: Set to true when apps are deployed
+const getExternalAppsDomain = () => {
+    const currentDomain = getDomainUrl();
+    const isCustomDomain = !['deriv.com', 'deriv.me', 'deriv.be'].includes(currentDomain);
+    return isCustomDomain && USE_CUSTOM_DOMAIN_FOR_EXTERNAL_APPS ? currentDomain : 'deriv.com';
+};
+
 export const tradershub_os_url =
     process.env.NODE_ENV === 'production'
-        ? `https://hub.${getDomainUrl()}/tradershub`
-        : `https://staging-hub.${getDomainUrl()}/tradershub`;
+        ? `https://hub.${getExternalAppsDomain()}/tradershub`
+        : `https://staging-hub.${getExternalAppsDomain()}/tradershub`;
 
 // TODO: This should be moved to PlatformContext
 export const platforms: TPlatforms = {
@@ -42,8 +52,8 @@ export const platforms: TPlatforms = {
         route_to_path: '',
         url:
             process.env.NODE_ENV === 'production'
-                ? `https://p2p.${getDomainUrl()}`
-                : `https://staging-p2p.${getDomainUrl()}`,
+                ? `https://p2p.${getExternalAppsDomain()}`
+                : `https://staging-p2p.${getExternalAppsDomain()}`,
     },
     tradershub_os: {
         icon_text: undefined,

@@ -31,17 +31,25 @@ const domainUrl = isCustomDomain
       ? domainUrlInitial
       : derivComUrl;
 
+// TEMPORARY FALLBACK: Until external apps are deployed to custom subdomains,
+// we'll use deriv.com as fallback. Set to true when ready to use custom domain.
+const USE_CUSTOM_DOMAIN_FOR_EXTERNAL_APPS = false; // TODO: Set to true when apps are deployed
+const getExternalAppsDomain = () => {
+    return isCustomDomain && USE_CUSTOM_DOMAIN_FOR_EXTERNAL_APPS ? domainUrl : derivComUrl;
+};
+const externalAppsDomain = getExternalAppsDomain();
+
 export const derivUrls = Object.freeze({
-    BOT_PRODUCTION: `https://dbot.${domainUrl}`,
-    BOT_STAGING: `https://staging-dbot.${domainUrl}`,
+    BOT_PRODUCTION: `https://dbot.${externalAppsDomain}`,
+    BOT_STAGING: `https://staging-dbot.${externalAppsDomain}`,
     DERIV_APP_PRODUCTION: `https://app.${domainUrl}`,
     DERIV_APP_STAGING: `https://staging-app.${domainUrl}`,
     DERIV_COM_PRODUCTION: `https://${domainUrl}`,
     DERIV_COM_PRODUCTION_EU: `https://eu.${domainUrl}`,
     DERIV_COM_STAGING: `https://staging.${domainUrl}`,
     DERIV_HOST_NAME: domainUrl,
-    SMARTTRADER_PRODUCTION: `https://smarttrader.${domainUrl}`,
-    SMARTTRADER_STAGING: `https://staging-smarttrader.${domainUrl}`,
+    SMARTTRADER_PRODUCTION: `https://smarttrader.${externalAppsDomain}`,
+    SMARTTRADER_STAGING: `https://staging-smarttrader.${externalAppsDomain}`,
 });
 
 /**
@@ -156,8 +164,8 @@ export const getStaticUrl = (
 };
 
 export const OUT_SYSTEMS_TRADERSHUB = Object.freeze({
-    PRODUCTION: `https://hub.${domainUrl}/tradershub`,
-    STAGING: `https://staging-hub.${domainUrl}/tradershub`,
+    PRODUCTION: `https://hub.${getExternalAppsDomain()}/tradershub`,
+    STAGING: `https://staging-hub.${getExternalAppsDomain()}/tradershub`,
 });
 
 export const redirectToOutSystems = (landingCompany?: string, currency = '') => {

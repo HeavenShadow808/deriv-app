@@ -30,7 +30,11 @@ const domain_url = is_custom_domain
 // For fork with custom domain and own App ID, all URLs must use custom domain
 // All subdomains (SmartTrader, DBot, P2P, Hub) should use custom domain.
 // Note: You need to configure these subdomains in your DNS/hosting.
-const external_apps_domain = is_custom_domain ? domain_url : deriv_com_url;
+//
+// TEMPORARY FALLBACK: Until external apps are deployed to custom subdomains,
+// we'll use deriv.com as fallback. Set to false when ready to use custom domain.
+const USE_CUSTOM_DOMAIN_FOR_EXTERNAL_APPS = false; // TODO: Set to true when apps are deployed
+const external_apps_domain = is_custom_domain && USE_CUSTOM_DOMAIN_FOR_EXTERNAL_APPS ? domain_url : deriv_com_url;
 
 export const deriv_urls = Object.freeze({
     DERIV_HOST_NAME: domain_url,
