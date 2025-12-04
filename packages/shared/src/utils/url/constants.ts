@@ -6,7 +6,15 @@ const deriv_be_url = 'deriv.be';
 
 const supported_domains = [deriv_com_url, deriv_me_url, deriv_be_url];
 const domain_url_initial = (isBrowser() && window.location.hostname.split('app.')[1]) || '';
-const domain_url = supported_domains.includes(domain_url_initial) ? domain_url_initial : deriv_com_url;
+// For custom domains (like deriv.now), use the current domain instead of falling back to deriv.com
+const is_custom_domain = isBrowser() && domain_url_initial && !supported_domains.includes(domain_url_initial);
+const domain_url = is_custom_domain
+    ? isBrowser()
+        ? window.location.hostname.replace(/^app\./, '')
+        : deriv_com_url
+    : supported_domains.includes(domain_url_initial)
+      ? domain_url_initial
+      : deriv_com_url;
 
 export const deriv_urls = Object.freeze({
     DERIV_HOST_NAME: domain_url,
