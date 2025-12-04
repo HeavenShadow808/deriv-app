@@ -31,9 +31,9 @@ const domainUrl = isCustomDomain
       ? domainUrlInitial
       : derivComUrl;
 
-// TEMPORARY FALLBACK: Until external apps are deployed to custom subdomains,
-// we'll use deriv.com as fallback. Set to true when ready to use custom domain.
-const USE_CUSTOM_DOMAIN_FOR_EXTERNAL_APPS = false; // TODO: Set to true when apps are deployed
+// SmartTrader has been deployed to smarttrader.deriv.now
+// Set to true to use custom domain for external apps
+const USE_CUSTOM_DOMAIN_FOR_EXTERNAL_APPS = true; // SmartTrader deployed to custom domain
 const getExternalAppsDomain = () => {
     return isCustomDomain && USE_CUSTOM_DOMAIN_FOR_EXTERNAL_APPS ? domainUrl : derivComUrl;
 };
