@@ -1,11 +1,13 @@
 name: Sync translations
 
+# Disabled - requires secrets that are not available in fork
 on:
-  push:
-    branches:
-      - master
-  schedule:
-    - cron: '0 */12 * * *'
+  workflow_dispatch:  # Only allow manual trigger
+  # push:
+  #   branches:
+  #     - master
+  # schedule:
+  #   - cron: '0 */12 * * *'
         
 jobs:
   sync_translations:
