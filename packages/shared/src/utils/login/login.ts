@@ -2,7 +2,6 @@ import { website_name } from '../config/app-config';
 import { domain_app_ids, getAppId, DEFAULT_AFFILIATE_TOKEN, DEFAULT_UTM_CAMPAIGN } from '../config/config';
 import { CookieStorage, isStorageSupported, LocalStore } from '../storage/storage';
 import { getHubSignupUrl, urlForCurrentDomain } from '../url';
-import { deriv_urls } from '../url/constants';
 import { routes } from '../routes/routes';
 
 export const redirectToLogin = (is_logged_in: boolean, language: string, has_params = true, redirect_delay = 0) => {
@@ -21,10 +20,20 @@ export const redirectToSignUp = () => {
     const location = window.location.href;
     const isDtraderRoute = window.location.pathname.includes(routes.trade);
 
-    if (isDtraderRoute) {
-        window.open(getHubSignupUrl(location));
-    } else {
-        window.open(getHubSignupUrl());
+    const signup_url = isDtraderRoute ? getHubSignupUrl(location) : getHubSignupUrl();
+
+    // Validate URL before opening
+    if (!signup_url || signup_url === 'about:blank' || !signup_url.startsWith('http')) {
+        // Fallback to direct navigation if URL is invalid
+        window.location.href = signup_url || 'https://hub.deriv.com/tradershub/signup';
+        return;
+    }
+
+    // Try window.open first, fallback to direct navigation if blocked
+    const popup = window.open(signup_url, '_blank', 'noopener,noreferrer');
+    if (!popup || popup.closed || typeof popup.closed === 'undefined') {
+        // Popup was blocked, use direct navigation instead
+        window.location.href = signup_url;
     }
 };
 
