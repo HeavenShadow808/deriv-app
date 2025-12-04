@@ -31,9 +31,11 @@ const domain_url = is_custom_domain
 // All subdomains (SmartTrader, DBot, P2P, Hub) should use custom domain.
 // Note: You need to configure these subdomains in your DNS/hosting.
 //
-// SmartTrader has been deployed to smarttrader.deriv.now
-// Set to true to use custom domain for external apps
-const USE_CUSTOM_DOMAIN_FOR_EXTERNAL_APPS = true; // SmartTrader deployed to custom domain
+// TEMPORARY FALLBACK: Until external apps are deployed to custom subdomains,
+// we'll use deriv.com as fallback. Set to true when ready to use custom domain.
+// NOTE: Setting this to true will also affect OAuth URLs (oauth.deriv.now),
+// so make sure OAuth subdomain is properly configured in DNS before enabling.
+const USE_CUSTOM_DOMAIN_FOR_EXTERNAL_APPS = false; // TODO: Set to true when apps are deployed
 const external_apps_domain = is_custom_domain && USE_CUSTOM_DOMAIN_FOR_EXTERNAL_APPS ? domain_url : deriv_com_url;
 
 export const deriv_urls = Object.freeze({
