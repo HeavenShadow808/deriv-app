@@ -120,6 +120,12 @@ const copyConfig = base => {
             noErrorOnMissing: true,
         },
         {
+            from: path.resolve(__dirname, '../../../_headers'),
+            to: '_headers',
+            toType: 'file',
+            noErrorOnMissing: true,
+        },
+        {
             from: path.resolve(__dirname, '../src/public/images/favicons/favicon.ico'),
             to: 'favicon.ico',
             toType: 'file',
