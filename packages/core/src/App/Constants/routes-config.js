@@ -331,33 +331,10 @@ const lazyLoadComplaintsPolicy = makeLazyLoader(
     () => <Loading />
 );
 
-// Custom component to redirect custom domains to marketing homepage (like deriv.be)
-// For custom domains (e.g., deriv.now), redirect root path to marketing homepage
-// For official domains (app.deriv.com), redirect to traders hub
-const HomepageRedirect = () => {
-    React.useEffect(() => {
-        const hostname = window.location.hostname;
-        const is_custom_domain =
-            !/^(app|staging-app)\.deriv\.(com|me|be)$/i.test(hostname) &&
-            !hostname.includes('localhost') &&
-            !hostname.includes('binary.sx') &&
-            !hostname.includes('deriv.dev');
-
-        // For custom domains at root path, redirect to marketing homepage (deriv.com)
-        // This makes deriv.now display the same marketing homepage as deriv.be
-        if (is_custom_domain && window.location.pathname === '/') {
-            window.location.href = 'https://deriv.com';
-        }
-    }, []);
-
-    // For official domains or non-root paths, redirect to traders hub
-    return <RouterRedirect to={routes.traders_hub} />;
-};
-
 // Order matters
 // TODO: search tag: test-route-parent-info -> Enable test for getting route parent info when there are nested routes
 const initRoutesConfig = () => [
-    { path: routes.index, component: HomepageRedirect, getTitle: () => '' },
+    { path: routes.index, component: RouterRedirect, getTitle: () => '', to: routes.traders_hub },
     { path: routes.endpoint, component: Endpoint, getTitle: () => 'Endpoint' }, // doesn't need localization as it's for internal use
     { path: routes.os_redirect, component: OSRedirect, getTitle: () => localize('Redirect') },
     { path: routes.redirect, component: Redirect, getTitle: () => localize('Redirect') },
