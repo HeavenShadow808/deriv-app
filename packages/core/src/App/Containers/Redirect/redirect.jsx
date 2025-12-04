@@ -51,6 +51,43 @@ const Redirect = observer(() => {
     const url_params = new URLSearchParams(url_query_string);
     let redirected_to_route = false;
 
+    // Handle OAuth tokens from URL params (as per Deriv API documentation)
+    // Documentation: https://developers.deriv.com/docs/authentication
+    // Format: /redirect/?acct1=...&token1=...&cur1=...
+    const hasOAuthTokens = url_params.has('acct1') && url_params.has('token1');
+    if (hasOAuthTokens && !url_params.get('action')) {
+        // Extract and store OAuth tokens
+        const tokens = {};
+        let index = 1;
+        while (url_params.has(`acct${index}`) && url_params.has(`token${index}`)) {
+            tokens[`acct${index}`] = url_params.get(`acct${index}`) || '';
+            tokens[`token${index}`] = url_params.get(`token${index}`) || '';
+            if (url_params.has(`cur${index}`)) {
+                tokens[`cur${index}`] = url_params.get(`cur${index}`) || '';
+            }
+            index++;
+        }
+
+        if (tokens.acct1 && tokens.token1) {
+            localStorage.setItem('config.tokens', JSON.stringify(tokens));
+            localStorage.setItem('config.account1', tokens.token1);
+            localStorage.setItem('active_loginid', tokens.acct1);
+            if (!sessionStorage.getItem('active_loginid') && /^(CR|MF|VRTC)\d/.test(tokens.acct1)) {
+                sessionStorage.setItem('active_loginid', tokens.acct1);
+            }
+            if (!sessionStorage.getItem('active_wallet_loginid') && /^(CRW|MFW|VRW)\d/.test(tokens.acct1)) {
+                sessionStorage.setItem('active_wallet_loginid', tokens.acct1);
+            }
+            // Remove OAuth params from URL and redirect to traders hub
+            // The authorize API will be called in client-store.init() via setUserLogin()
+            const cleanUrl = window.location.pathname;
+            window.history.replaceState({}, '', cleanUrl);
+            if (!is_logged_in && !is_logging_in) {
+                window.location.href = routes.traders_hub;
+            }
+        }
+    }
+
     // TODO: remove this after oauth2 migration
     // get data from cookies and populate local storage for clients
     // to be logged in coming from OS subdomains

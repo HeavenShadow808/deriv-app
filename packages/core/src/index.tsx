@@ -26,15 +26,26 @@ const has_endpoint_url = checkAndSetEndpointFromUrl();
 // if has endpoint url, APP will be redirected
 if (!has_endpoint_url) {
     const initApp = async () => {
-        const is_tmb_enabled = await isTmbEnabled();
-        const accounts = await getActiveAccounts();
-        const root_store = is_tmb_enabled
-            ? initStore(AppNotificationMessages, accounts)
-            : initStore(AppNotificationMessages);
+        try {
+            const is_tmb_enabled = await isTmbEnabled();
+            const accounts = await getActiveAccounts();
+            const root_store = is_tmb_enabled
+                ? initStore(AppNotificationMessages, accounts)
+                : initStore(AppNotificationMessages);
 
-        const wrapper = document.getElementById('deriv_app');
-        if (wrapper) {
-            ReactDOM.render(<App useSuspense={false} root_store={root_store} />, wrapper);
+            const wrapper = document.getElementById('deriv_app');
+            if (wrapper) {
+                ReactDOM.render(<App useSuspense={false} root_store={root_store} />, wrapper);
+            }
+        } catch (error) {
+            // eslint-disable-next-line no-console
+            console.error('Failed to initialize app:', error);
+            const wrapper = document.getElementById('deriv_app');
+            if (wrapper) {
+                // Render app anyway to show error UI
+                const root_store = initStore(AppNotificationMessages);
+                ReactDOM.render(<App useSuspense={false} root_store={root_store} />, wrapper);
+            }
         }
     };
 

@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useHistory, useLocation, withRouter } from 'react-router-dom';
 
 import { Button } from '@deriv/components';
@@ -16,6 +17,62 @@ const CallbackPage = () => {
     const [isDuplicateLoginEnabled] = useGrowthbookGetFeatureValue({
         featureFlag: 'duplicate-login',
     });
+
+    // Fallback handler: Process OAuth tokens directly from URL if Callback component fails
+    useEffect(() => {
+        const urlParams = new URLSearchParams(location.search);
+        const hasOAuthTokens = urlParams.has('acct1') && urlParams.has('token1');
+
+        // Only process if we have OAuth tokens and no error
+        if (hasOAuthTokens && !has_access_denied_error) {
+            // Check if tokens are already processed (stored in localStorage)
+            const storedTokens = localStorage.getItem('config.tokens');
+            if (!storedTokens) {
+                // Extract tokens from URL
+                const tokens: Record<string, string> = {};
+                let index = 1;
+                while (urlParams.has(`acct${index}`) && urlParams.has(`token${index}`)) {
+                    tokens[`acct${index}`] = urlParams.get(`acct${index}`) || '';
+                    tokens[`token${index}`] = urlParams.get(`token${index}`) || '';
+                    if (urlParams.has(`cur${index}`)) {
+                        tokens[`cur${index}`] = urlParams.get(`cur${index}`) || '';
+                    }
+                    index++;
+                }
+
+                // Process tokens if we have at least one account
+                if (tokens.acct1 && tokens.token1) {
+                    try {
+                        localStorage.setItem('config.tokens', JSON.stringify(tokens));
+                        localStorage.setItem('config.account1', tokens.token1);
+                        localStorage.setItem('active_loginid', tokens.acct1);
+                        if (!sessionStorage.getItem('active_loginid') && /^(CR|MF|VRTC)\d/.test(tokens.acct1)) {
+                            sessionStorage.setItem('active_loginid', tokens.acct1);
+                        }
+                        if (!sessionStorage.getItem('active_wallet_loginid') && /^(CRW|MFW|VRW)\d/.test(tokens.acct1)) {
+                            sessionStorage.setItem('active_wallet_loginid', tokens.acct1);
+                        }
+
+                        // Redirect to traders hub
+                        const redirectTo = sessionStorage.getItem('tradershub_redirect_to');
+                        const postLoginRedirectUri = localStorage.getItem('config.post_login_redirect_uri');
+
+                        if (redirectTo) {
+                            sessionStorage.removeItem('tradershub_redirect_to');
+                            window.location.href = redirectTo;
+                        } else if (postLoginRedirectUri) {
+                            window.location.href = postLoginRedirectUri;
+                        } else {
+                            window.location.href = routes.traders_hub;
+                        }
+                    } catch (error) {
+                        // eslint-disable-next-line no-console
+                        console.error('Failed to process OAuth tokens:', error);
+                    }
+                }
+            }
+        }
+    }, [location.search, has_access_denied_error]);
 
     if (isDuplicateLoginEnabled && has_access_denied_error) {
         return <AccessDeniedScreen />;
