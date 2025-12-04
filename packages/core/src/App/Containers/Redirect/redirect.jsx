@@ -87,6 +87,22 @@ const Redirect = observer(() => {
             if (!sessionStorage.getItem('active_wallet_loginid') && /^(CRW|MFW|VRW)\d/.test(tokens.acct1)) {
                 sessionStorage.setItem('active_wallet_loginid', tokens.acct1);
             }
+
+            // Check if there's a redirect_to parameter (e.g., from SmartTrader)
+            const redirect_to = url_params.get('redirect_to');
+            if (redirect_to) {
+                // Redirect to external URL (e.g., SmartTrader) with OAuth tokens
+                const redirectUrl = new URL(redirect_to);
+                // Add OAuth tokens to redirect URL
+                Object.keys(tokens).forEach(key => {
+                    if (tokens[key]) {
+                        redirectUrl.searchParams.set(key, tokens[key]);
+                    }
+                });
+                window.location.href = redirectUrl.toString();
+                return;
+            }
+
             // Remove OAuth params from URL and redirect to traders hub
             // The authorize API will be called in client-store.init() via setUserLogin()
             const cleanUrl = window.location.pathname;
