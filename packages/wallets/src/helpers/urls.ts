@@ -11,7 +11,25 @@ const derivBeUrl = 'deriv.be';
 
 const supportedDomains = [derivComUrl, derivMeUrl, derivBeUrl];
 const domainUrlInitial = (isBrowser() && window.location.hostname.split('app.')[1]) || '';
-const domainUrl = supportedDomains.includes(domainUrlInitial) ? domainUrlInitial : derivComUrl;
+// For custom domains (like deriv.now), use the current domain instead of falling back to deriv.com
+const hostname = isBrowser() ? window.location.hostname : '';
+const isCustomDomain =
+    isBrowser() &&
+    !/^(app|staging-app|smarttrader|staging-smarttrader|hub|staging-hub|p2p|staging-p2p|dbot|staging-dbot|eu|staging)\.deriv\.(com|me|be)$/i.test(
+        hostname
+    ) &&
+    !hostname.includes('localhost') &&
+    !hostname.includes('binary.sx') &&
+    !hostname.includes('deriv.dev') &&
+    !supportedDomains.some(domain => hostname === domain || hostname.endsWith(`.${domain}`));
+
+const domainUrl = isCustomDomain
+    ? isBrowser()
+        ? hostname.replace(/^(app|staging-app)\./, '')
+        : derivComUrl
+    : supportedDomains.includes(domainUrlInitial)
+      ? domainUrlInitial
+      : derivComUrl;
 
 export const derivUrls = Object.freeze({
     BOT_PRODUCTION: `https://dbot.${domainUrl}`,

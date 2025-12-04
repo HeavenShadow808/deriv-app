@@ -140,11 +140,14 @@ export const setUrlLanguage = (lang: string) => {
  * @deprecated Please use 'URLUtils.getDerivStaticURL' from '@deriv-com/utils' instead of this.
  */
 export const getStaticUrl = (path = '', is_document = false, is_eu_url = false) => {
-    // For custom domains, if path is '/' (home), use current origin instead of deriv.com
+    // For custom domains, use current origin for all paths to keep everything on custom domain
     const is_custom_domain =
         !getCurrentProductionDomain() && !/^staging-app\.deriv\.(com|me|be)$/i.test(window.location.hostname);
-    if (is_custom_domain && path === '/') {
-        return window.location.origin;
+    if (is_custom_domain) {
+        // For custom domains, use current origin for all static URLs
+        const lang = default_language?.toLowerCase();
+        const lang_path = lang && lang !== 'en' ? `/${lang}` : '';
+        return `${window.location.origin}${lang_path}/${normalizePath(path)}`;
     }
 
     const host = is_eu_url ? deriv_urls.DERIV_COM_PRODUCTION_EU : deriv_urls.DERIV_COM_PRODUCTION;
