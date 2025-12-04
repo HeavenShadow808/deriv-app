@@ -60,7 +60,8 @@ export const loginUrl = ({ language }: TLoginUrl) => {
 
     const getOAuthUrl = () => {
         // Add redirect_uri to ensure redirect back to current domain (custom domain support)
-        const redirect_uri = `${window.location.origin}/en/redirect`;
+        // Use /callback as per Deriv API documentation for OAuth redirect URL
+        const redirect_uri = `${window.location.origin}/callback`;
         return `https://oauth.${
             deriv_urls.DERIV_HOST_NAME
         }/oauth2/authorize?app_id=${change_login_app_id || getAppId()}&l=${language}${marketing_queries}&brand=${website_name.toLowerCase()}&redirect_uri=${encodeURIComponent(redirect_uri)}`;
