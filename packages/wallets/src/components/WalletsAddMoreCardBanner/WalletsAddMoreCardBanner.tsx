@@ -4,6 +4,7 @@ import { useCreateWallet, useIsEuRegion, useLandingCompany, useWalletAccountsLis
 import { LabelPairedCheckMdFillIcon, LabelPairedPlusMdFillIcon } from '@deriv/quill-icons';
 import { Localize, useTranslations } from '@deriv-com/translations';
 import { Button, useDevice } from '@deriv-com/ui';
+import { DEFAULT_AFFILIATE_TOKEN, DEFAULT_UTM_CAMPAIGN } from '@deriv/shared';
 import { redirectToOutSystems } from '../../helpers/urls';
 import useSyncLocalStorageClientAccounts from '../../hooks/useSyncLocalStorageClientAccounts';
 import useWalletAccountSwitcher from '../../hooks/useWalletAccountSwitcher';
@@ -92,10 +93,42 @@ const WalletsAddMoreCardBanner: React.FC<TWalletCarouselItem> = ({
                         return redirectToOutSystems(shortcode, currency);
                     }
 
-                    const createAccountResponse = await mutateAsync({
+                    // Add affiliate_token and utm_campaign for affiliate tracking (as per Deriv API documentation)
+                    // Documentation: https://developers.deriv.com/docs/create-account-using-api
+                    // Documentation: https://developers.deriv.com/docs/affiliates
+                    const url_params = new URLSearchParams(window.location.search);
+                    const url_affiliate_token =
+                        url_params.get('affiliate_token') || url_params.get('sidc') || url_params.get('sidi');
+                    const url_utm_campaign = url_params.get('utm_campaign');
+                    // Use URL parameter if provided, otherwise use default from config
+                    const affiliate_token =
+                        url_affiliate_token ||
+                        (DEFAULT_AFFILIATE_TOKEN && DEFAULT_AFFILIATE_TOKEN.trim().length > 0
+                            ? DEFAULT_AFFILIATE_TOKEN
+                            : null);
+                    const utm_campaign =
+                        url_utm_campaign ||
+                        (DEFAULT_UTM_CAMPAIGN && DEFAULT_UTM_CAMPAIGN.trim().length > 0 ? DEFAULT_UTM_CAMPAIGN : null);
+
+                    const createAccountPayload: Parameters<typeof mutateAsync>[0] & {
+                        affiliate_token?: string;
+                        utm_campaign?: string;
+                    } = {
                         account_type: isCrypto ? 'crypto' : 'doughflow',
                         currency,
-                    });
+                    };
+
+                    // Add affiliate tracking to API request (as per Deriv API documentation)
+                    // Documentation: https://developers.deriv.com/docs/create-account-using-api
+                    // Documentation: https://developers.deriv.com/docs/affiliates
+                    if (affiliate_token) {
+                        createAccountPayload.affiliate_token = affiliate_token;
+                    }
+                    if (utm_campaign) {
+                        createAccountPayload.utm_campaign = utm_campaign;
+                    }
+
+                    const createAccountResponse = await mutateAsync(createAccountPayload);
 
                     const newAccountWallet = createAccountResponse?.new_account_wallet;
 

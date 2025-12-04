@@ -30,6 +30,8 @@ import {
     State,
     toMoment,
     urlForLanguage,
+    DEFAULT_AFFILIATE_TOKEN,
+    DEFAULT_UTM_CAMPAIGN,
 } from '@deriv/shared';
 import { getLanguage, getRedirectionLanguage, localize } from '@deriv/translations';
 import { Analytics } from '@deriv-com/analytics';
@@ -1400,6 +1402,28 @@ export default class ClientStore extends BaseStore {
         this.root_store.ui.setRealAccountSignupParams(form_values);
         const { document_number, document_type, document_additional, ...required_form_values } = form_values;
         required_form_values.citizen = form_values?.citizen || this.account_settings?.citizen || this.residence;
+
+        // Add affiliate_token and utm_campaign for affiliate tracking (as per Deriv API documentation)
+        // Documentation: https://developers.deriv.com/docs/create-account-using-api
+        // Documentation: https://developers.deriv.com/docs/affiliates
+        const url_params = new URLSearchParams(window.location.search);
+        const url_affiliate_token =
+            url_params.get('affiliate_token') || url_params.get('sidc') || url_params.get('sidi');
+        const url_utm_campaign = url_params.get('utm_campaign');
+        // Use URL parameter if provided, otherwise use default from config
+        const affiliate_token =
+            url_affiliate_token ||
+            (DEFAULT_AFFILIATE_TOKEN && DEFAULT_AFFILIATE_TOKEN.trim().length > 0 ? DEFAULT_AFFILIATE_TOKEN : null);
+        const utm_campaign =
+            url_utm_campaign ||
+            (DEFAULT_UTM_CAMPAIGN && DEFAULT_UTM_CAMPAIGN.trim().length > 0 ? DEFAULT_UTM_CAMPAIGN : null);
+        // Add affiliate tracking to API request
+        if (affiliate_token) {
+            required_form_values.affiliate_token = affiliate_token;
+        }
+        if (utm_campaign) {
+            required_form_values.utm_campaign = utm_campaign;
+        }
 
         const response = is_maltainvest_account
             ? await WS.newAccountRealMaltaInvest(required_form_values)
