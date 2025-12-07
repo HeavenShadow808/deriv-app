@@ -2555,6 +2555,30 @@ export default class ClientStore extends BaseStore {
             }
         });
 
+        // Add affiliate_token and utm_campaign from URL parameters or default config
+        // Support both sidc (Revenue Share) and sidi (Master Partner) from affiliate links
+        // Always use default values from config if not provided in URL (affiliate link will always be used)
+        // As per Deriv API documentation: https://developers.deriv.com/docs/affiliates
+        // Documentation: https://developers.deriv.com/docs/create-account-using-api
+        const url_affiliate_token =
+            url_params.get('affiliate_token') || url_params.get('sidc') || url_params.get('sidi');
+        const url_utm_campaign = url_params.get('utm_campaign');
+        // Use URL parameter if provided, otherwise use default from config
+        const affiliate_token =
+            url_affiliate_token ||
+            (DEFAULT_AFFILIATE_TOKEN && DEFAULT_AFFILIATE_TOKEN.trim().length > 0 ? DEFAULT_AFFILIATE_TOKEN : null);
+        const utm_campaign =
+            url_utm_campaign ||
+            (DEFAULT_UTM_CAMPAIGN && DEFAULT_UTM_CAMPAIGN.trim().length > 0 ? DEFAULT_UTM_CAMPAIGN : null);
+
+        // Add affiliate tracking to signup params (as per Deriv API documentation)
+        if (affiliate_token) {
+            signup_params.affiliate_token = affiliate_token;
+        }
+        if (utm_campaign) {
+            signup_params.utm_campaign = utm_campaign;
+        }
+
         return signup_params;
     }
 

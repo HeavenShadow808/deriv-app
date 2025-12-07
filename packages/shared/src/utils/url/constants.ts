@@ -31,12 +31,12 @@ const domain_url = is_custom_domain
 // All subdomains (SmartTrader, DBot, P2P, Hub) should use custom domain.
 // Note: You need to configure these subdomains in your DNS/hosting.
 //
-// TEMPORARY FALLBACK: Until external apps are deployed to custom subdomains,
-// we'll use deriv.com as fallback. Set to true when ready to use custom domain.
-// NOTE: Setting this to true will also affect OAuth URLs (oauth.deriv.now),
-// so make sure OAuth subdomain is properly configured in DNS before enabling.
-const USE_CUSTOM_DOMAIN_FOR_EXTERNAL_APPS = false; // TODO: Set to true when apps are deployed
-const external_apps_domain = is_custom_domain && USE_CUSTOM_DOMAIN_FOR_EXTERNAL_APPS ? domain_url : deriv_com_url;
+// For SmartTrader, we use custom domain (smarttrader.deriv.now) since it's already deployed
+// For other external apps, we still use deriv.com as fallback until they are deployed
+const USE_CUSTOM_DOMAIN_FOR_SMARTTRADER = true; // SmartTrader is deployed to smarttrader.deriv.now
+const USE_CUSTOM_DOMAIN_FOR_OTHER_APPS = false; // Other apps still use deriv.com
+const external_apps_domain = is_custom_domain && USE_CUSTOM_DOMAIN_FOR_OTHER_APPS ? domain_url : deriv_com_url;
+const smarttrader_domain = is_custom_domain && USE_CUSTOM_DOMAIN_FOR_SMARTTRADER ? domain_url : deriv_com_url;
 
 export const deriv_urls = Object.freeze({
     DERIV_HOST_NAME: domain_url,
@@ -48,8 +48,8 @@ export const deriv_urls = Object.freeze({
     // For external apps, use custom domain only if explicitly enabled, otherwise use deriv.com
     HUB_PRODUCTION: `https://hub.${external_apps_domain}/tradershub`,
     HUB_STAGING: `https://staging-hub.${external_apps_domain}/tradershub`,
-    SMARTTRADER_PRODUCTION: `https://smarttrader.${external_apps_domain}`,
-    SMARTTRADER_STAGING: `https://staging-smarttrader.${external_apps_domain}`,
+    SMARTTRADER_PRODUCTION: `https://smarttrader.${smarttrader_domain}`,
+    SMARTTRADER_STAGING: `https://staging-smarttrader.${smarttrader_domain}`,
     P2P_PRODUCTION: `https://p2p.${external_apps_domain}`,
     P2P_STAGING: `https://staging-p2p.${external_apps_domain}`,
     BOT_PRODUCTION: `https://dbot.${external_apps_domain}`,

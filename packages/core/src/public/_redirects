@@ -1,2 +1,4 @@
+# Redirect all paths from deriv.now to app.deriv.now
+# This file is used by Cloudflare Pages or similar hosting
+# For Vercel, use vercel.json redirects instead
 /*    /index.html   200
-

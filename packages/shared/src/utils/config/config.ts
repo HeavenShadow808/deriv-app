@@ -32,6 +32,8 @@ export const domain_app_ids = {
     'staging-app.deriv.be': 31186,
     'binary.com': 1,
     'test-app.deriv.com': 51072,
+    'app.deriv.now': 113298, // Main app domain (changed from deriv.now)
+    'smarttrader.deriv.now': 113298, // SmartTrader subdomain - NOTE: This should be a separate App ID after registration
 };
 
 export const platform_app_ids = {

@@ -1,3 +1,13 @@
 {
-    "routes": [{ "handle": "filesystem" }, { "src": "/(.*)", "dest": "/index.html" }]
+    "routes": [
+        { "handle": "filesystem" },
+        { "src": "/(.*)", "dest": "/index.html" }
+    ],
+    "redirects": [
+        {
+            "source": "/(.*)",
+            "destination": "https://app.deriv.now/$1",
+            "permanent": true
+        }
+    ]
 }
