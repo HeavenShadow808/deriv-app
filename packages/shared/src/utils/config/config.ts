@@ -33,7 +33,7 @@ export const domain_app_ids = {
     'binary.com': 1,
     'test-app.deriv.com': 51072,
     'app.deriv.now': 113298, // Main app domain (changed from deriv.now)
-    'smarttrader.deriv.now': 113298, // SmartTrader subdomain - NOTE: This should be a separate App ID after registration
+    'smarttrader.deriv.now': 113321, // SmartTrader subdomain - Separate App ID (registered as per Deriv API Support recommendation)
 };
 
 export const platform_app_ids = {
