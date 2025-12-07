@@ -2845,7 +2845,11 @@ export default class ClientStore extends BaseStore {
 
         smartTrader.iframe = document.getElementById('localstorage-sync');
         p2p.iframe = document.getElementById('localstorage-sync__p2p');
-        smartTrader.origin = getUrlSmartTrader();
+        // For postMessage, origin must be domain only (not full URL with path)
+        // getUrlSmartTrader() returns full URL like "https://smarttrader.deriv.now/en/trading.html"
+        // We need to extract just the domain for postMessage origin
+        const smartTraderUrl = getUrlSmartTrader();
+        smartTrader.origin = smartTraderUrl ? new URL(smartTraderUrl).origin : getUrlSmartTrader();
         p2p.origin = getUrlP2P(false);
 
         [smartTrader, p2p].forEach(platform => {
@@ -2865,6 +2869,27 @@ export default class ClientStore extends BaseStore {
                     },
                     platform.origin
                 );
+                
+                // For SmartTrader, also send session token if available
+                if (platform === smartTrader) {
+                    const sessionToken = localStorage.getItem('config.account1') || localStorage.getItem('session_token');
+                    if (sessionToken) {
+                        platform.iframe.contentWindow.postMessage(
+                            {
+                                key: 'config.account1',
+                                value: sessionToken,
+                            },
+                            platform.origin
+                        );
+                        platform.iframe.contentWindow.postMessage(
+                            {
+                                key: 'session_token',
+                                value: sessionToken,
+                            },
+                            platform.origin
+                        );
+                    }
+                }
 
                 if (platform === p2p) {
                     const currentLang = LocalStore.get(LANGUAGE_KEY);
