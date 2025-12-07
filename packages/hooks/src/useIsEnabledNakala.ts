@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
-import { getDomainUrl } from '@deriv/shared/src/utils/url/url';
+import { getDomainUrl, isProduction } from '@deriv/shared';
 import { useStore } from '@deriv/stores';
 
 import useGrowthbookGetFeatureValue from './useGrowthbookGetFeatureValue';
@@ -47,8 +47,9 @@ const useIsEnabledNakala = (accounts: any[]) => {
 
     const getNakalaServerInfo = async () => {
         try {
-            const hostname = window.location.hostname;
-            const isProductionApp = ['app.deriv.com', 'app.deriv.me', 'app.deriv.be'].includes(hostname);
+            // Use isProduction() from config to properly detect production domains
+            // This includes app.deriv.com, app.deriv.me, app.deriv.be, and app.deriv.now
+            const isProductionApp = isProduction();
             const apiUrl = isProductionApp ? NAKALA_INFO_BASEURL.PRODUCTION : NAKALA_INFO_BASEURL.STAGING;
 
             const response = await axios.get(`${apiUrl}/nakala/v1/nakala-servers?mt5_login_id=${loginId}`);
