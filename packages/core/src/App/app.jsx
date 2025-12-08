@@ -55,6 +55,30 @@ const AppWithoutTranslation = ({ root_store }) => {
     const url_params = new URLSearchParams(url_query_string);
     const account_currency = url_params.get('account') || window.sessionStorage.getItem('account');
 
+    // Detect redirect to external platform (e.g., SmartTrader)
+    // URL format: app.deriv.now?redirect=smarttrader.deriv.now&lang=EN
+    const external_redirect = url_params.get('redirect');
+    if (external_redirect) {
+        // Store for post-login redirect with token
+        // Allowed domains for security
+        const allowed_redirect_domains = [
+            'smarttrader.deriv.now',
+            'smarttrader.deriv.com',
+            'smarttrader.deriv.be',
+            'smarttrader.deriv.me',
+        ];
+
+        // Validate redirect domain
+        const isAllowedDomain = allowed_redirect_domains.some(domain =>
+            external_redirect === domain || external_redirect.endsWith(`.${domain}`)
+        );
+
+        if (isAllowedDomain) {
+            sessionStorage.setItem('smarttrader_redirect', external_redirect);
+            console.log('[Deriv App] SmartTrader redirect detected:', external_redirect);
+        }
+    }
+
     const client_account_lists = JSON.parse(localStorage.getItem('client.accounts') ?? '{}');
 
     if (account_currency) {

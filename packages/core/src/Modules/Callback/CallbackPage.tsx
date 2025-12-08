@@ -57,6 +57,19 @@ const CallbackPage = () => {
                         const redirectTo = sessionStorage.getItem('tradershub_redirect_to');
                         const postLoginRedirectUri = localStorage.getItem('config.post_login_redirect_uri');
 
+                        // Check for SmartTrader redirect (external platform)
+                        const smarttraderRedirect = sessionStorage.getItem('smarttrader_redirect');
+                        if (smarttraderRedirect) {
+                            sessionStorage.removeItem('smarttrader_redirect');
+                            // Redirect to SmartTrader with session token
+                            // SmartTrader expects token parameter for authentication
+                            const sessionToken = tokens.token1;
+                            const redirectUrl = `https://${smarttraderRedirect}/trading.html?token=${encodeURIComponent(sessionToken)}`;
+                            console.log('[Deriv App] Redirecting to SmartTrader:', redirectUrl);
+                            window.location.href = redirectUrl;
+                            return;
+                        }
+
                         if (redirectTo) {
                             sessionStorage.removeItem('tradershub_redirect_to');
                             window.location.href = redirectTo;
@@ -93,6 +106,19 @@ const CallbackPage = () => {
                 const postLoginRedirectUri = localStorage.getItem('config.post_login_redirect_uri') || '';
                 const params = new URLSearchParams(postLoginRedirectUri);
                 const containsAccount = params.get('account');
+
+                // Check for SmartTrader redirect (external platform)
+                const smarttraderRedirect = sessionStorage.getItem('smarttrader_redirect');
+                if (smarttraderRedirect) {
+                    sessionStorage.removeItem('smarttrader_redirect');
+                    // Redirect to SmartTrader with session token
+                    // SmartTrader expects token parameter for authentication
+                    const sessionToken = tokens.token1;
+                    const redirectUrl = `https://${smarttraderRedirect}/trading.html?token=${encodeURIComponent(sessionToken)}`;
+                    console.log('[Deriv App] Redirecting to SmartTrader:', redirectUrl);
+                    window.location.href = redirectUrl;
+                    return;
+                }
 
                 //added a check for postLoginRedirectUri to basically sync account when user created a new currency from Tradershub and redirected back to DTrader
                 if (redirectTo || (postLoginRedirectUri && !!containsAccount)) {
