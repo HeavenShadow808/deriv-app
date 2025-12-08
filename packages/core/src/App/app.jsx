@@ -74,8 +74,21 @@ const AppWithoutTranslation = ({ root_store }) => {
         );
 
         if (isAllowedDomain) {
-            sessionStorage.setItem('smarttrader_redirect', external_redirect);
-            console.log('[Deriv App] SmartTrader redirect detected:', external_redirect);
+            // Check if user is already logged in
+            const storedToken = localStorage.getItem('config.account1');
+            const clientAccounts = localStorage.getItem('client.accounts');
+
+            if (storedToken && clientAccounts) {
+                // User is already logged in, redirect immediately to SmartTrader with token
+                console.log('[Deriv App] User already logged in, redirecting to SmartTrader with token');
+                const redirectUrl = `https://${external_redirect}/trading.html?token=${encodeURIComponent(storedToken)}`;
+                window.location.href = redirectUrl;
+                return null; // Stop rendering, we're redirecting
+            } else {
+                // User not logged in, store for post-login redirect
+                sessionStorage.setItem('smarttrader_redirect', external_redirect);
+                console.log('[Deriv App] SmartTrader redirect stored, user needs to login');
+            }
         }
     }
 
